@@ -11,6 +11,7 @@ final class PresentationController: UIPresentationController {
     var drawerFullExpansionTapGR: UITapGestureRecognizer?
     var drawerDismissalTapGR: UITapGestureRecognizer?
     var drawerDragGR: UIPanGestureRecognizer?
+    
 
     /// The target state of the drawer. If no presentation animation is in
     /// progress, the value should be equivalent to `currentDrawerState`.
@@ -43,6 +44,8 @@ final class PresentationController: UIPresentationController {
             gestureAvailabilityConditionsDidChange()
         }
     }
+    
+    var dimmingView: UIView?
 
     init(presentingVC: UIViewController?,
          presentingDrawerAnimationActions: DrawerAnimationActions,
@@ -80,7 +83,7 @@ extension PresentationController {
         var frame: CGRect = .zero
         frame.size = size(forChildContentContainer: presentedViewController,
                           withParentContainerSize: containerViewSize)
-        let drawerFullY = configuration.fullExpansionBehaviour.drawerFullY
+        let drawerFullY = GeometryEvaluator.drawerFullY(configuration: configuration)
         frame.origin.y = GeometryEvaluator.drawerPositionY(for: targetDrawerState,
                                                            drawerPartialHeight: drawerPartialHeight,
                                                            containerViewHeight: containerViewHeight,
@@ -93,8 +96,7 @@ extension PresentationController {
         //        initializer.
         gestureAvailabilityConditionsDidChange()
 
-        presentedViewController.view.layoutIfNeeded()
-        containerView?.backgroundColor = .clear
+        presentedViewController.view.layoutIfNeeded()        
         setupDrawerFullExpansionTapRecogniser()
         setupDrawerDismissalTapRecogniser()
         setupDrawerDragRecogniser()
@@ -102,17 +104,22 @@ extension PresentationController {
         setupHandleView()
         setupDrawerBorder()
         setupDrawerShadow()
+        setupDimmingView()
+        addBackgroundDimmingAnimationEnding(at: .partiallyExpanded)
         addCornerRadiusAnimationEnding(at: .partiallyExpanded)
         enableDrawerFullExpansionTapRecogniser(enabled: false)
         enableDrawerDismissalTapRecogniser(enabled: false)
     }
 
     override func presentationTransitionDidEnd(_ completed: Bool) {
+        setupNavigationBar()
         enableDrawerFullExpansionTapRecogniser(enabled: true)
         enableDrawerDismissalTapRecogniser(enabled: true)
     }
 
     override func dismissalTransitionWillBegin() {
+        addBackgroundDimmingAnimationEnding(at: .collapsed)
+        addNavigationBarAnimationEnding(at: .collapsed)
         addCornerRadiusAnimationEnding(at: .collapsed)
         enableDrawerFullExpansionTapRecogniser(enabled: false)
         enableDrawerDismissalTapRecogniser(enabled: false)

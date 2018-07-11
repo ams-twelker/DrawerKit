@@ -6,6 +6,10 @@ extension PresentationController {
 
         let maxCornerRadius = maximumCornerRadius
         let endingCornerRadius = cornerRadius(at: endingState)
+        
+        let endingDimmingViewAlpha = dimmingViewAlpha(at: endingState)
+        
+        let endNavigationBarAlpha = navigationBarAlpha(at: endingState)
 
         let (startingPositionY, endingPositionY) = positionsY(startingState: startingState,
                                                               endingState: endingState)
@@ -54,6 +58,8 @@ extension PresentationController {
             self.currentDrawerY = endingPositionY
             if autoAnimatesDimming { self.handleView?.alpha = endingHandleViewAlpha }
             if maxCornerRadius != 0 { self.currentDrawerCornerRadius = endingCornerRadius }
+            if self.backgroundDimmingAlpha != 0 { self.dimmingView?.alpha = endingDimmingViewAlpha }
+            self.navigationBar?.alpha = endNavigationBarAlpha
             AnimationSupport.clientAnimateAlong(presentingDrawerAnimationActions: presentingAnimationActions,
                                                 presentedDrawerAnimationActions: presentedAnimationActions,
                                                 info)
@@ -107,7 +113,6 @@ extension PresentationController {
     }
 
     func addCornerRadiusAnimationEnding(at endingState: DrawerState) {
-        let drawerFullY = configuration.fullExpansionBehaviour.drawerFullY
         guard maximumCornerRadius != 0
             && drawerPartialY != drawerFullY
             && endingState != currentDrawerState
@@ -144,6 +149,47 @@ extension PresentationController {
 
         animator.startAnimation()
     }
+    
+    func addBackgroundDimmingAnimationEnding(at endingState: DrawerState) {
+        guard backgroundDimmingAlpha != 0
+            && drawerPartialY != drawerFullY
+            && endingState != currentDrawerState
+            else { return }
+        
+        let startingState = currentDrawerState
+        let (startingPositionY, endingPositionY) = positionsY(startingState: startingState,
+                                                              endingState: endingState)
+        
+        let animator = makeAnimator(startingPositionY: startingPositionY,
+                                    endingPositionY: endingPositionY)
+        
+        let endingDimmingViewAlpha = dimmingViewAlpha(at: endingState)
+        animator.addAnimations {
+            self.dimmingView?.alpha = endingDimmingViewAlpha
+        }
+        
+        animator.startAnimation()
+    }
+    
+    func addNavigationBarAnimationEnding(at endingState: DrawerState) {
+        guard drawerPartialY != drawerFullY
+            && endingState != currentDrawerState
+            else { return }
+        
+        let startingState = currentDrawerState
+        let (startingPositionY, endingPositionY) = positionsY(startingState: startingState,
+                                                              endingState: endingState)
+        
+        let animator = makeAnimator(startingPositionY: startingPositionY,
+                                    endingPositionY: endingPositionY)
+        
+        let endingNavigationBarAlpha = navigationBarAlpha(at: endingState)
+        animator.addAnimations {
+            self.navigationBar?.alpha = endingNavigationBarAlpha
+        }
+        
+        animator.startAnimation()
+    }
 
     private func makeAnimator(startingPositionY: CGFloat,
                               endingPositionY: CGFloat) -> UIViewPropertyAnimator {
@@ -159,7 +205,6 @@ extension PresentationController {
 
     private func positionsY(startingState: DrawerState,
                             endingState: DrawerState) -> (starting: CGFloat, ending: CGFloat) {
-        let drawerFullY = configuration.fullExpansionBehaviour.drawerFullY
         let startingPositionY =
             GeometryEvaluator.drawerPositionY(for: startingState,
                                               drawerPartialHeight: drawerPartialHeight,

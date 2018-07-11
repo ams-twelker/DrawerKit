@@ -6,18 +6,8 @@ public struct DrawerConfiguration {
     public enum FullExpansionBehaviour: Equatable {
         case coversFullScreen
         case doesNotCoverStatusBar
+        case doesNotCoverNavigationBar
         case leavesCustomGap(gap: CGFloat)
-
-        var drawerFullY: CGFloat {
-            switch self {
-            case .coversFullScreen:
-                return 0
-            case .doesNotCoverStatusBar:
-                return DrawerGeometry.statusBarHeight
-            case let .leavesCustomGap(gap):
-                return gap
-            }
-        }
 
         public static func ==(lhs: DrawerConfiguration.FullExpansionBehaviour,
                               rhs: DrawerConfiguration.FullExpansionBehaviour) -> Bool {
@@ -144,6 +134,13 @@ public struct DrawerConfiguration {
     /// default value is `maximumAtPartialY`.
     public var cornerAnimationOption: CornerAnimationOption
     
+    /// The alpha to be applied to the dimming view. If set to 0, the background
+    /// is not dimmed. The default value is 0.4
+    public var backgroundDimmingAlpha: CGFloat
+    
+    /// The navigation bar to be displayed above the drawer.
+    public var navigationBar: UINavigationBar?
+    
     /// The configuration options for the handle view, should it be shown. Set this
     /// property to `nil` to hide the handle view. The default value is
     /// `HandleViewConfiguration()`.
@@ -173,6 +170,8 @@ public struct DrawerConfiguration {
                 lowerMarkGap: CGFloat = 40,
                 maximumCornerRadius: CGFloat = 15,
                 cornerAnimationOption: CornerAnimationOption = .maximumAtPartialY,
+                backgroundDimmingAlpha: CGFloat = 0.4,
+                navigationBar: UINavigationBar? = nil,
                 handleViewConfiguration: HandleViewConfiguration? = HandleViewConfiguration(),
                 drawerBorderConfiguration: DrawerBorderConfiguration? = nil,
                 drawerShadowConfiguration: DrawerShadowConfiguration? = nil) {
@@ -180,7 +179,7 @@ public struct DrawerConfiguration {
         self.durationIsProportionalToDistanceTraveled = durationIsProportionalToDistanceTraveled
         self.timingCurveProvider = timingCurveProvider
         switch fullExpansionBehaviour {
-        case .coversFullScreen, .doesNotCoverStatusBar:
+        case .coversFullScreen, .doesNotCoverStatusBar, .doesNotCoverNavigationBar:
             self.fullExpansionBehaviour = fullExpansionBehaviour
         case let .leavesCustomGap(gap):
             let validatedGap = max(0, gap)
@@ -199,6 +198,8 @@ public struct DrawerConfiguration {
         self.lowerMarkGap = max(0, lowerMarkGap)
         self.maximumCornerRadius = max(0, maximumCornerRadius)
         self.cornerAnimationOption = cornerAnimationOption
+        self.backgroundDimmingAlpha = backgroundDimmingAlpha
+        self.navigationBar = navigationBar
         self.handleViewConfiguration = handleViewConfiguration
         self.drawerBorderConfiguration = drawerBorderConfiguration
         self.drawerShadowConfiguration = drawerShadowConfiguration

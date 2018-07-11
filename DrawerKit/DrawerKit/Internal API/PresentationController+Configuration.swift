@@ -40,6 +40,10 @@ extension PresentationController {
     var maximumCornerRadius: CGFloat {
         return configuration.maximumCornerRadius
     }
+    
+    var backgroundDimmingAlpha: CGFloat {
+        return configuration.backgroundDimmingAlpha
+    }
 
     var isDrawerDraggable: Bool {
         return configuration.isDrawerDraggable

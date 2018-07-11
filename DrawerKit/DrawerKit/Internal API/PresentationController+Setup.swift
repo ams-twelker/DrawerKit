@@ -90,6 +90,32 @@ extension PresentationController {
             presentedView?.layer.shadowOffset = drawerShadowConfig.shadowOffset
         }
     }
+    
+    func setupDimmingView() {
+        
+        guard let containerView = self.containerView else {
+            assertionFailure("Missing container view")
+            return
+        }
+        
+        let dimmingView = UIView(frame: containerView.bounds)
+        dimmingView.backgroundColor = UIColor(white: 0, alpha: 1)
+        dimmingView.alpha = 0
+        
+        containerView.insertSubview(dimmingView, at: 0)
+        
+        self.dimmingView = dimmingView
+    }
+    
+    func setupNavigationBar() {
+        
+        guard let navigationBar = self.navigationBar else {
+            return
+        }
+        
+        navigationBar.alpha = 0
+        containerView?.addSubview(navigationBar)
+    }
 }
 
 extension PresentationController {

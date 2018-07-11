@@ -15,7 +15,9 @@ extension PresentationController {
         guard tapY < currentDrawerY else { return }
         NotificationCenter.default.post(notification: DrawerNotification.drawerExteriorTapped)
         tapGesture.isEnabled = false
-        presentedViewController.dismiss(animated: true)
+        animateTransition(to: .collapsed) { [weak self] in
+            self?.presentedViewController.dismiss(animated: true)
+        }
     }
 
     @objc func handleDrawerDrag() {
@@ -54,6 +56,8 @@ extension PresentationController {
         currentDrawerY += translationY
         targetDrawerState = currentDrawerState
         currentDrawerCornerRadius = cornerRadius(at: currentDrawerState)
+        dimmingView?.alpha = dimmingViewAlpha(at: currentDrawerState)
+        navigationBar?.alpha = navigationBarAlpha(at: currentDrawerState)
     }
 }
 
