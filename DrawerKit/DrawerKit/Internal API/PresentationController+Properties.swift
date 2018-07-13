@@ -1,12 +1,17 @@
 import UIKit
 
 extension PresentationController {
+    
     var containerViewBounds: CGRect {
         return containerView?.bounds ?? .zero
     }
 
     var containerViewSize: CGSize {
         return containerViewBounds.size
+    }
+    
+    var drawerFullY: CGFloat {
+        return GeometryEvaluator.drawerFullY(configuration: configuration)
     }
 
     var containerViewHeight: CGFloat {
@@ -46,7 +51,6 @@ extension PresentationController {
         }
 
         set {
-            let drawerFullY = configuration.fullExpansionBehaviour.drawerFullY
             currentDrawerY =
                 GeometryEvaluator.drawerPositionY(for: newValue,
                                                   drawerPartialHeight: drawerPartialHeight,
@@ -57,56 +61,25 @@ extension PresentationController {
 
     var currentDrawerY: CGFloat {
         get {
-            let drawerFullY = configuration.fullExpansionBehaviour.drawerFullY
             let posY = presentedView?.frame.origin.y ?? drawerFullY
             return min(max(posY, drawerFullY), containerViewHeight)
         }
 
         set {
-            let drawerFullY = configuration.fullExpansionBehaviour.drawerFullY
             let posY = min(max(newValue, drawerFullY), containerViewHeight)
             presentedView?.frame.origin.y = posY
         }
     }
-
-    var currentDrawerCornerRadius: CGFloat {
-        get {
-            let radius = presentedView?.layer.cornerRadius ?? 0
-            return min(max(radius, 0), maximumCornerRadius)
-        }
-
-        set {
-            let radius = min(max(newValue, 0), maximumCornerRadius)
-            presentedView?.layer.cornerRadius = radius
-            if #available(iOS 11.0, *) {
-                presentedView?.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-            }
-        }
+    
+    func dimmingViewAlpha(at state: DrawerState) -> CGFloat {
+        return backgroundDimmingAlpha * linearValue(at: state, from: .collapsed, to: .partiallyExpanded)
     }
-
-    func cornerRadius(at state: DrawerState) -> CGFloat {
-        switch configuration.cornerAnimationOption {
-        case .maximumAtPartialY:
-            return maximumCornerRadius * triangularValue(at: state)
-        case .alwaysShowBelowStatusBar:
-            let drawerFullY = configuration.fullExpansionBehaviour.drawerFullY
-            let positionY =
-                GeometryEvaluator.drawerPositionY(for: state,
-                                                  drawerPartialHeight: drawerPartialHeight,
-                                                  containerViewHeight: containerViewHeight,
-                                                  drawerFullY: drawerFullY)
-
-            return maximumCornerRadius * min(positionY, DrawerGeometry.statusBarHeight) / DrawerGeometry.statusBarHeight
-
-        }
-    }
-
+    
     func handleViewAlpha(at state: DrawerState) -> CGFloat {
         return triangularValue(at: state)
     }
 
     private func triangularValue(at state: DrawerState) -> CGFloat {
-        let drawerFullY = configuration.fullExpansionBehaviour.drawerFullY
         guard drawerPartialY != drawerFullY
             && drawerPartialY != containerViewHeight
             && drawerFullY != containerViewHeight
@@ -129,6 +102,51 @@ extension PresentationController {
             fraction = 1 - (positionY - drawerFullY) / (containerViewHeight - drawerFullY)
         }
 
+        return fraction
+    }
+    
+    private func linearValue(at state: DrawerState, from beginningState: DrawerState, to endingState: DrawerState) -> CGFloat {
+        let positionY = GeometryEvaluator.drawerPositionY(for: state,
+                                                          drawerPartialHeight: drawerPartialHeight,
+                                                          containerViewHeight: containerViewHeight,
+                                                          drawerFullY: drawerFullY)
+        
+        let beginningY: CGFloat
+        switch beginningState {
+        case .collapsed:
+            beginningY = containerViewHeight
+        case .partiallyExpanded:
+            beginningY = drawerPartialY
+        case .fullyExpanded:
+            beginningY = drawerFullY
+        case .transitioning(_):
+            assertionFailure("Beginning state cannot be transitioning")
+            return 0
+        }
+        
+        let endingY: CGFloat
+        switch endingState {
+        case .collapsed:
+            endingY = containerViewHeight
+        case .partiallyExpanded:
+            endingY = drawerPartialY
+        case .fullyExpanded:
+            endingY = drawerFullY
+        case .transitioning(_):
+            assertionFailure("Ending state cannot be transitioning")
+            return 0
+        }
+        
+        let fraction: CGFloat
+        
+        if positionY >= beginningY {
+            fraction = 0
+        } else if positionY <= endingY {
+            fraction = 1
+        } else {
+            fraction = 1 - (endingY - positionY) / (endingY - beginningY)
+        }
+        
         return fraction
     }
 }

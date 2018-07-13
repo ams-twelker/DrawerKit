@@ -1,6 +1,17 @@
 import UIKit
 
 extension PresentationController {
+    
+    func setupView() {
+        
+        containerView?.addSubview(presentedViewController.view)
+        presentedViewController.view.layoutIfNeeded()
+        
+        presentedView?.layer.cornerRadius = cornerRadius
+    }
+}
+
+extension PresentationController {
     func setupDrawerFullExpansionTapRecogniser() {
         guard drawerFullExpansionTapGR == nil else { return }
         let isFullyPresentable = isFullyPresentableByDrawerTaps
@@ -89,6 +100,52 @@ extension PresentationController {
             presentedView?.layer.shadowRadius = drawerShadowConfig.shadowRadius
             presentedView?.layer.shadowOffset = drawerShadowConfig.shadowOffset
         }
+    }
+}
+
+extension PresentationController {
+    
+    func setupDimmingView() {
+        
+        guard let containerView = self.containerView else {
+            assertionFailure("Missing container view")
+            return
+        }
+        
+        let dimmingView = UIView(frame: containerView.bounds)
+        dimmingView.backgroundColor = UIColor(white: 0, alpha: 1)
+        dimmingView.alpha = 0
+        
+        containerView.insertSubview(dimmingView, at: 0)
+        
+        self.dimmingView = dimmingView
+    }
+}
+
+extension PresentationController {
+    
+    func setupHeaderView(_ headerView: UIView, in headerContainerView: UIView) {
+        
+        guard let containerView = containerView else {
+            assertionFailure("Missing container view")
+            return
+        }
+        
+        headerView.translatesAutoresizingMaskIntoConstraints = false
+        
+        presentedView?.addSubview(headerView)
+                
+        let centerYConstraint = headerView.centerYAnchor.constraint(equalTo: headerContainerView.centerYAnchor)
+        centerYConstraint.priority = .defaultHigh
+
+        let constraints = [centerYConstraint,
+                           headerView.heightAnchor.constraint(equalTo: headerContainerView.heightAnchor),
+                           headerView.leadingAnchor.constraint(equalTo: headerContainerView.leadingAnchor),
+                           headerView.trailingAnchor.constraint(equalTo: headerContainerView.trailingAnchor),
+                           headerView.topAnchor.constraint(greaterThanOrEqualTo: containerView.topAnchor, constant: drawerFullY)
+        ]
+
+        NSLayoutConstraint.activate(constraints)
     }
 }
 

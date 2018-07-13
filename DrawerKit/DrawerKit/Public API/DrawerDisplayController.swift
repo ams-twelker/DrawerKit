@@ -33,7 +33,7 @@ public final class DrawerDisplayController: NSObject {
     ///        a boolean value which, when true, draws guiding lines on top of the
     ///        presenting view controller but below the presented view controller.
     ///        Its default value is false.
-    public init(presentingViewController: UIViewController,
+    public init(presentingViewController: UIViewController?,
                 presentedViewController: (UIViewController & DrawerPresentable),
                 configuration: DrawerConfiguration = DrawerConfiguration(),
                 inDebugMode: Bool = false) {

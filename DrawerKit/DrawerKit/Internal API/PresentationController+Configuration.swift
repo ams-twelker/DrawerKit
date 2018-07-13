@@ -37,8 +37,12 @@ extension PresentationController {
         return configuration.lowerMarkGap
     }
 
-    var maximumCornerRadius: CGFloat {
-        return configuration.maximumCornerRadius
+    var cornerRadius: CGFloat {
+        return configuration.cornerRadius
+    }
+    
+    var backgroundDimmingAlpha: CGFloat {
+        return configuration.backgroundDimmingAlpha
     }
 
     var isDrawerDraggable: Bool {

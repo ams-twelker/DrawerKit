@@ -28,10 +28,7 @@ extension AnimationController: UIViewControllerAnimatedTransitioning {
 
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         let (presentingVC, presentedVC) = viewControllers(transitionContext, isPresentation)
-        if isPresentation {
-            transitionContext.containerView.addSubview(presentedVC.view)            
-        }
-
+        
         let duration = transitionDuration(using: transitionContext)
         let timingCurveProvider = configuration.timingCurveProvider
         let animator = UIViewPropertyAnimator(duration: duration, timingParameters: timingCurveProvider)

@@ -13,6 +13,13 @@ public protocol DrawerPresentationControlling: class {
     ///
     /// - note: The drawer presentation controller does not retain the view.
     var scrollViewForPullToDismiss: UIScrollView? { get set }
+    
+    /// The container view for the header view
+    var headerContainerView: UIView? { get set }
+    
+    /// The header view. It will always be displayed in the frame of the `headerContainerView` if
+    /// it is completely on screen. Otherwise the header view will be stuck to the top of the drawer.
+    var headerView: UIView? { get set }
 }
 
 extension UIViewController {

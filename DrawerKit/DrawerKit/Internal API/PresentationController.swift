@@ -11,6 +11,7 @@ final class PresentationController: UIPresentationController {
     var drawerFullExpansionTapGR: UITapGestureRecognizer?
     var drawerDismissalTapGR: UITapGestureRecognizer?
     var drawerDragGR: UIPanGestureRecognizer?
+    
 
     /// The target state of the drawer. If no presentation animation is in
     /// progress, the value should be equivalent to `currentDrawerState`.
@@ -43,6 +44,12 @@ final class PresentationController: UIPresentationController {
             gestureAvailabilityConditionsDidChange()
         }
     }
+    
+    weak var headerContainerView: UIView?
+    
+    weak var headerView: UIView?
+    
+    var dimmingView: UIView?
 
     init(presentingVC: UIViewController?,
          presentingDrawerAnimationActions: DrawerAnimationActions,
@@ -61,7 +68,6 @@ final class PresentationController: UIPresentationController {
     }
 
     func gestureAvailabilityConditionsDidChange() {
-        drawerDismissalTapGR?.isEnabled = targetDrawerState == .partiallyExpanded
         drawerFullExpansionTapGR?.isEnabled = targetDrawerState == .partiallyExpanded
 
         if let scrollView = scrollViewForPullToDismiss, let manager = pullToDismissManager {
@@ -80,7 +86,7 @@ extension PresentationController {
         var frame: CGRect = .zero
         frame.size = size(forChildContentContainer: presentedViewController,
                           withParentContainerSize: containerViewSize)
-        let drawerFullY = configuration.fullExpansionBehaviour.drawerFullY
+        let drawerFullY = GeometryEvaluator.drawerFullY(configuration: configuration)
         frame.origin.y = GeometryEvaluator.drawerPositionY(for: targetDrawerState,
                                                            drawerPartialHeight: drawerPartialHeight,
                                                            containerViewHeight: containerViewHeight,
@@ -92,9 +98,8 @@ extension PresentationController {
         // NOTE: `targetDrawerState.didSet` is not invoked within the
         //        initializer.
         gestureAvailabilityConditionsDidChange()
-
-        presentedViewController.view.layoutIfNeeded()
-        containerView?.backgroundColor = .clear
+        
+        setupView()
         setupDrawerFullExpansionTapRecogniser()
         setupDrawerDismissalTapRecogniser()
         setupDrawerDragRecogniser()
@@ -102,7 +107,11 @@ extension PresentationController {
         setupHandleView()
         setupDrawerBorder()
         setupDrawerShadow()
-        addCornerRadiusAnimationEnding(at: .partiallyExpanded)
+        setupDimmingView()
+        if let headerView = headerView, let headerContainerView = headerContainerView {
+            setupHeaderView(headerView, in: headerContainerView)
+        }
+        addBackgroundDimmingAnimationEnding(at: .partiallyExpanded)
         enableDrawerFullExpansionTapRecogniser(enabled: false)
         enableDrawerDismissalTapRecogniser(enabled: false)
     }
@@ -113,7 +122,7 @@ extension PresentationController {
     }
 
     override func dismissalTransitionWillBegin() {
-        addCornerRadiusAnimationEnding(at: .collapsed)
+        addBackgroundDimmingAnimationEnding(at: .collapsed)
         enableDrawerFullExpansionTapRecogniser(enabled: false)
         enableDrawerDismissalTapRecogniser(enabled: false)
     }
