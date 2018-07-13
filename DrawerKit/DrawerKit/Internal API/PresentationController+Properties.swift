@@ -2,10 +2,6 @@ import UIKit
 
 extension PresentationController {
     
-    var navigationBar: UINavigationBar? {
-        return configuration.navigationBar
-    }
-    
     var containerViewBounds: CGRect {
         return containerView?.bounds ?? .zero
     }
@@ -74,44 +70,9 @@ extension PresentationController {
             presentedView?.frame.origin.y = posY
         }
     }
-
-    var currentDrawerCornerRadius: CGFloat {
-        get {
-            let radius = presentedView?.layer.cornerRadius ?? 0
-            return min(max(radius, 0), maximumCornerRadius)
-        }
-
-        set {
-            let radius = min(max(newValue, 0), maximumCornerRadius)
-            presentedView?.layer.cornerRadius = radius
-            if #available(iOS 11.0, *) {
-                presentedView?.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-            }
-        }
-    }
-
-    func cornerRadius(at state: DrawerState) -> CGFloat {
-        switch configuration.cornerAnimationOption {
-        case .maximumAtPartialY:
-            return maximumCornerRadius * triangularValue(at: state)
-        case .alwaysShowBelowStatusBar:
-            let positionY =
-                GeometryEvaluator.drawerPositionY(for: state,
-                                                  drawerPartialHeight: drawerPartialHeight,
-                                                  containerViewHeight: containerViewHeight,
-                                                  drawerFullY: drawerFullY)
-
-            return maximumCornerRadius * min(positionY, DrawerGeometry.statusBarHeight) / DrawerGeometry.statusBarHeight
-
-        }
-    }
     
     func dimmingViewAlpha(at state: DrawerState) -> CGFloat {
         return backgroundDimmingAlpha * linearValue(at: state, from: .collapsed, to: .partiallyExpanded)
-    }
-    
-    func navigationBarAlpha(at state: DrawerState) -> CGFloat {
-        return linearValue(at: state, from: .partiallyExpanded, to: .fullyExpanded)
     }
     
     func handleViewAlpha(at state: DrawerState) -> CGFloat {

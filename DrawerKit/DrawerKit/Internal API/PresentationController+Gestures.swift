@@ -55,9 +55,7 @@ extension PresentationController {
     func applyTranslationY(_ translationY: CGFloat) {
         currentDrawerY += translationY
         targetDrawerState = currentDrawerState
-        currentDrawerCornerRadius = cornerRadius(at: currentDrawerState)
         dimmingView?.alpha = dimmingViewAlpha(at: currentDrawerState)
-        navigationBar?.alpha = navigationBarAlpha(at: currentDrawerState)
     }
 }
 

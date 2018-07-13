@@ -43,10 +43,6 @@ extension DrawerAnimationInfo {
         return configuration.lowerMarkGap
     }
 
-    public var maximumCornerRadius: CGFloat {
-        return configuration.maximumCornerRadius
-    }
-
     public var isDrawerDraggable: Bool {
         return configuration.isDrawerDraggable
     }

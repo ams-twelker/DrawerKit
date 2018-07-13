@@ -6,7 +6,6 @@ public struct DrawerConfiguration {
     public enum FullExpansionBehaviour: Equatable {
         case coversFullScreen
         case doesNotCoverStatusBar
-        case doesNotCoverNavigationBar
         case leavesCustomGap(gap: CGFloat)
 
         public static func ==(lhs: DrawerConfiguration.FullExpansionBehaviour,
@@ -125,10 +124,8 @@ public struct DrawerConfiguration {
     /// expanded position. The default value is 40 points.
     public var lowerMarkGap: CGFloat
 
-    /// The animating drawer also animates the radius of its top left and top right
-    /// corners, from 0 to the value of this property. Setting this to 0 prevents any
-    /// corner animations from taking place. The default value is 15 points.
-    public var maximumCornerRadius: CGFloat
+    /// The corner radius of the drawer. The default value is 15 points.
+    public var cornerRadius: CGFloat
 
     /// How the drawer should animate its corner radius if specified. The
     /// default value is `maximumAtPartialY`.
@@ -137,9 +134,6 @@ public struct DrawerConfiguration {
     /// The alpha to be applied to the dimming view. If set to 0, the background
     /// is not dimmed. The default value is 0.4
     public var backgroundDimmingAlpha: CGFloat
-    
-    /// The navigation bar to be displayed above the drawer.
-    public var navigationBar: UINavigationBar?
     
     /// The configuration options for the handle view, should it be shown. Set this
     /// property to `nil` to hide the handle view. The default value is
@@ -168,10 +162,9 @@ public struct DrawerConfiguration {
                 flickSpeedThreshold: CGFloat = 3,
                 upperMarkGap: CGFloat = 40,
                 lowerMarkGap: CGFloat = 40,
-                maximumCornerRadius: CGFloat = 15,
+                cornerRadius: CGFloat = 15,
                 cornerAnimationOption: CornerAnimationOption = .maximumAtPartialY,
                 backgroundDimmingAlpha: CGFloat = 0.4,
-                navigationBar: UINavigationBar? = nil,
                 handleViewConfiguration: HandleViewConfiguration? = HandleViewConfiguration(),
                 drawerBorderConfiguration: DrawerBorderConfiguration? = nil,
                 drawerShadowConfiguration: DrawerShadowConfiguration? = nil) {
@@ -179,7 +172,7 @@ public struct DrawerConfiguration {
         self.durationIsProportionalToDistanceTraveled = durationIsProportionalToDistanceTraveled
         self.timingCurveProvider = timingCurveProvider
         switch fullExpansionBehaviour {
-        case .coversFullScreen, .doesNotCoverStatusBar, .doesNotCoverNavigationBar:
+        case .coversFullScreen, .doesNotCoverStatusBar:
             self.fullExpansionBehaviour = fullExpansionBehaviour
         case let .leavesCustomGap(gap):
             let validatedGap = max(0, gap)
@@ -196,10 +189,9 @@ public struct DrawerConfiguration {
         self.flickSpeedThreshold = max(0, flickSpeedThreshold)
         self.upperMarkGap = max(0, upperMarkGap)
         self.lowerMarkGap = max(0, lowerMarkGap)
-        self.maximumCornerRadius = max(0, maximumCornerRadius)
+        self.cornerRadius = max(0, cornerRadius)
         self.cornerAnimationOption = cornerAnimationOption
         self.backgroundDimmingAlpha = backgroundDimmingAlpha
-        self.navigationBar = navigationBar
         self.handleViewConfiguration = handleViewConfiguration
         self.drawerBorderConfiguration = drawerBorderConfiguration
         self.drawerShadowConfiguration = drawerShadowConfiguration
@@ -222,7 +214,7 @@ extension DrawerConfiguration: Equatable {
             && lhs.flickSpeedThreshold == rhs.flickSpeedThreshold
             && lhs.upperMarkGap == rhs.upperMarkGap
             && lhs.lowerMarkGap == rhs.lowerMarkGap
-            && lhs.maximumCornerRadius == rhs.maximumCornerRadius
+            && lhs.cornerRadius == rhs.cornerRadius
             && lhs.handleViewConfiguration == rhs.handleViewConfiguration
             && lhs.drawerBorderConfiguration == rhs.drawerBorderConfiguration
             && lhs.drawerShadowConfiguration == rhs.drawerShadowConfiguration

@@ -45,6 +45,10 @@ final class PresentationController: UIPresentationController {
         }
     }
     
+    weak var headerContainerView: UIView?
+    
+    weak var headerView: UIView?
+    
     var dimmingView: UIView?
 
     init(presentingVC: UIViewController?,
@@ -64,7 +68,6 @@ final class PresentationController: UIPresentationController {
     }
 
     func gestureAvailabilityConditionsDidChange() {
-        drawerDismissalTapGR?.isEnabled = targetDrawerState == .partiallyExpanded
         drawerFullExpansionTapGR?.isEnabled = targetDrawerState == .partiallyExpanded
 
         if let scrollView = scrollViewForPullToDismiss, let manager = pullToDismissManager {
@@ -95,8 +98,8 @@ extension PresentationController {
         // NOTE: `targetDrawerState.didSet` is not invoked within the
         //        initializer.
         gestureAvailabilityConditionsDidChange()
-
-        presentedViewController.view.layoutIfNeeded()        
+        
+        setupView()
         setupDrawerFullExpansionTapRecogniser()
         setupDrawerDismissalTapRecogniser()
         setupDrawerDragRecogniser()
@@ -105,22 +108,21 @@ extension PresentationController {
         setupDrawerBorder()
         setupDrawerShadow()
         setupDimmingView()
+        if let headerView = headerView, let headerContainerView = headerContainerView {
+            setupHeaderView(headerView, in: headerContainerView)
+        }
         addBackgroundDimmingAnimationEnding(at: .partiallyExpanded)
-        addCornerRadiusAnimationEnding(at: .partiallyExpanded)
         enableDrawerFullExpansionTapRecogniser(enabled: false)
         enableDrawerDismissalTapRecogniser(enabled: false)
     }
 
     override func presentationTransitionDidEnd(_ completed: Bool) {
-        setupNavigationBar()
         enableDrawerFullExpansionTapRecogniser(enabled: true)
         enableDrawerDismissalTapRecogniser(enabled: true)
     }
 
     override func dismissalTransitionWillBegin() {
         addBackgroundDimmingAnimationEnding(at: .collapsed)
-        addNavigationBarAnimationEnding(at: .collapsed)
-        addCornerRadiusAnimationEnding(at: .collapsed)
         enableDrawerFullExpansionTapRecogniser(enabled: false)
         enableDrawerDismissalTapRecogniser(enabled: false)
     }

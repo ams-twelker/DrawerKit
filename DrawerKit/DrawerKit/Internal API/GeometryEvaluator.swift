@@ -8,8 +8,6 @@ struct GeometryEvaluator {
             return 0
         case .doesNotCoverStatusBar:
             return DrawerGeometry.statusBarHeight
-        case .doesNotCoverNavigationBar:
-            return configuration.navigationBar?.frame.maxY ?? 0
         case let .leavesCustomGap(gap):
             return gap
         }
