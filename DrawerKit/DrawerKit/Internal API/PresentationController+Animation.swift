@@ -73,16 +73,6 @@ extension PresentationController {
                 self.presentedViewController.dismiss(animated: true)
             }
 
-            let isStartingStateCollapsedOrFullyExpanded =
-                (startingState == .collapsed || startingState == .fullyExpanded)
-
-            let isEndingStateCollapsedOrFullyExpanded =
-                (endingState == .collapsed || endingState == .fullyExpanded)
-
-            let shouldSetCornerRadiusToZero =
-                (isEndingStateCollapsedOrFullyExpanded && endingPosition == .end) ||
-                (isStartingStateCollapsedOrFullyExpanded && endingPosition == .start)
-
             if endingPosition != .end {
                 self.targetDrawerState = GeometryEvaluator.drawerState(for: self.currentDrawerY,
                                                                        drawerPartialHeight: self.drawerPartialY,

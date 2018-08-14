@@ -7,7 +7,12 @@ extension PresentationController {
         containerView?.addSubview(presentedViewController.view)
         presentedViewController.view.layoutIfNeeded()
         
-        presentedView?.layer.cornerRadius = cornerRadius
+        if let presentedView = presentedView {
+            let roundCornerPath = UIBezierPath(roundedRect: presentedView.bounds, byRoundingCorners: [.topLeft, .topRight], cornerRadii: CGSize(width: cornerRadius, height: cornerRadius))
+            let maskLayer = CAShapeLayer()
+            maskLayer.path = roundCornerPath.cgPath
+            presentedView.layer.mask = maskLayer
+        }
     }
 }
 
@@ -28,13 +33,13 @@ extension PresentationController {
         presentedView?.addGestureRecognizer(tapGesture)
         drawerFullExpansionTapGR = tapGesture
     }
-
+    
     func removeDrawerFullExpansionTapRecogniser() {
         guard let tapGesture = drawerFullExpansionTapGR else { return }
         presentedView?.removeGestureRecognizer(tapGesture)
         drawerFullExpansionTapGR = nil
     }
-
+    
     func enableDrawerFullExpansionTapRecogniser(enabled: Bool) {
         drawerFullExpansionTapGR?.isEnabled = enabled
     }
@@ -57,13 +62,13 @@ extension PresentationController {
         containerView?.addGestureRecognizer(tapGesture)
         drawerDismissalTapGR = tapGesture
     }
-
+    
     func removeDrawerDismissalTapRecogniser() {
         guard let tapGesture = drawerDismissalTapGR else { return }
         containerView?.removeGestureRecognizer(tapGesture)
         drawerDismissalTapGR = nil
     }
-
+    
     func enableDrawerDismissalTapRecogniser(enabled: Bool) {
         drawerDismissalTapGR?.isEnabled = enabled
     }
@@ -77,7 +82,7 @@ extension PresentationController {
         presentedView?.addGestureRecognizer(panGesture)
         drawerDragGR = panGesture
     }
-
+    
     func removeDrawerDragRecogniser() {
         guard let panGesture = drawerDragGR else { return }
         presentedView?.removeGestureRecognizer(panGesture)
@@ -92,7 +97,7 @@ extension PresentationController {
             presentedView?.layer.borderColor = drawerBorderConfig.borderColor?.cgColor
         }
     }
-
+    
     func setupDrawerShadow() {
         if let drawerShadowConfig = configuration.drawerShadowConfiguration {
             presentedView?.layer.shadowColor = drawerShadowConfig.shadowColor?.cgColor
@@ -134,17 +139,17 @@ extension PresentationController {
         headerView.translatesAutoresizingMaskIntoConstraints = false
         
         presentedView?.addSubview(headerView)
-                
+        
         let centerYConstraint = headerView.centerYAnchor.constraint(equalTo: headerContainerView.centerYAnchor)
         centerYConstraint.priority = .defaultHigh
-
+        
         let constraints = [centerYConstraint,
                            headerView.heightAnchor.constraint(equalTo: headerContainerView.heightAnchor),
                            headerView.leadingAnchor.constraint(equalTo: headerContainerView.leadingAnchor),
                            headerView.trailingAnchor.constraint(equalTo: headerContainerView.trailingAnchor),
                            headerView.topAnchor.constraint(greaterThanOrEqualTo: containerView.topAnchor, constant: drawerFullY)
         ]
-
+        
         NSLayoutConstraint.activate(constraints)
     }
 }
@@ -156,20 +161,20 @@ extension PresentationController {
             let handleView = self.handleView,
             let handleConfig = configuration.handleViewConfiguration
             else { return }
-
+        
         handleView.translatesAutoresizingMaskIntoConstraints = false
         handleView.backgroundColor = handleConfig.backgroundColor
         handleView.layer.masksToBounds = true
-
+        
         switch handleConfig.cornerRadius {
         case .automatic:
             handleView.layer.cornerRadius = handleConfig.size.height / 2
         case let .custom(radius):
             handleView.layer.cornerRadius = radius
         }
-
+        
         presentedView.addSubview(handleView)
-
+        
         NSLayoutConstraint.activate([
             handleView.widthAnchor.constraint(equalToConstant: handleConfig.size.width),
             handleView.heightAnchor.constraint(equalToConstant: handleConfig.size.height),
@@ -177,7 +182,7 @@ extension PresentationController {
             handleView.topAnchor.constraint(equalTo: presentedView.topAnchor, constant: handleConfig.top)
             ])
     }
-
+    
     func removeHandleView() {
         self.handleView?.removeFromSuperview()
     }
@@ -187,7 +192,7 @@ extension PresentationController {
     func setupDebugHeightMarks() {
         guard inDebugMode && (upperMarkGap > 0 || lowerMarkGap > 0),
             let containerView = containerView else { return }
-
+        
         if upperMarkGap > 0 {
             let upperMarkYView = UIView()
             upperMarkYView.backgroundColor = .black
@@ -195,7 +200,7 @@ extension PresentationController {
                                           width: containerView.bounds.size.width, height: 3)
             containerView.addSubview(upperMarkYView)
         }
-
+        
         if lowerMarkGap > 0 {
             let lowerMarkYView = UIView()
             lowerMarkYView.backgroundColor = .black
@@ -203,7 +208,7 @@ extension PresentationController {
                                           width: containerView.bounds.size.width, height: 3)
             containerView.addSubview(lowerMarkYView)
         }
-
+        
         let drawerMarkView = UIView()
         drawerMarkView.backgroundColor = .white
         drawerMarkView.frame = CGRect(x: 0, y: drawerPartialY,
