@@ -45,9 +45,24 @@ final class PresentationController: UIPresentationController {
         }
     }
     
-    weak var headerContainerView: UIView?
+    weak var headerContainerView: UIView? {
+        didSet {
+            guard containerView != nil else { return }
+            if let headerView = headerView, let headerContainerView = headerContainerView {
+                setupHeaderView(headerView, in: headerContainerView)
+            }
+        }
+    }
     
-    weak var headerView: UIView?
+    weak var headerView: UIView? {
+        didSet {
+            guard containerView != nil else { return }
+            if let headerView = headerView, let headerContainerView = headerContainerView {
+                oldValue?.removeFromSuperview()
+                setupHeaderView(headerView, in: headerContainerView)
+            }
+        }
+    }
     
     var dimmingView: UIView?
     
